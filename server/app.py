@@ -15,20 +15,33 @@ migrate = Migrate(app, db)
 
 db.init_app(app)
 
+@app.route("/")
+def index():
+    return {"message": "Server is running. Nothing to show from backend. React is calling /articles/<id>"}, 200
+
 @app.route('/clear')
 def clear_session():
     session['page_views'] = 0
     return {'message': '200: Successfully cleared session data.'}, 200
 
-@app.route('/articles')
+@app.route('/articles', methods=["GET"])
 def index_articles():
+    articles = Article.query.all()
+    articles_list = [article.to_dict() for article in articles]
 
-    pass
+    return make_response(jsonify(articles_list), 200)
+
+    # return {'message': 'Welcome to the articles index!'}, 200
 
 @app.route('/articles/<int:id>')
 def show_article(id):
-
-    pass
+    session["page_views"] = session.get("page_views", 0)
+    session["page_views"] += 1
+    if session["page_views"] <= 3:
+        article = Article.query.get(id)
+        return make_response(jsonify(article.to_dict()), 200)
+    else:
+        return {"message": "Maximum pageview limit reached"}, 401
 
 if __name__ == '__main__':
     app.run(port=5555)

@@ -8,7 +8,10 @@ function Home() {
   useEffect(() => {
     fetch("/articles")
       .then((r) => r.json())
-      .then(setArticles);
+      .then((data) => {
+        console.log("Fetched data:", data);
+        setArticles(data);
+      });
   }, []);
 
   return (
